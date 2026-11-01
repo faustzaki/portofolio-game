@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "ai-game-developer": {
+      "args": [
+        "port=27695",
+        "plugin-timeout=10000",
+        "client-transport=stdio",
+        "authorization=none",
+        "project=9f953374"
+      ],
+      "command": "C:\\Belajar Coding\\Projects\\portofolio-game\\Library\\mcp-server\\win-x64\\gamedev-mcp-server.exe",
+      "type": "stdio"
+    }
+  }
+}
