@@ -225,13 +225,20 @@ Jembatan = 1 file `.jslib` di `Assets/Plugins/WebGL/` + guard `#if UNITY_WEBGL &
 
 ---
 
-## 7. Pertanyaan terbuka
+## 7. Keputusan user (2026-11-12) — SUDAH DIJAWAB
 
-1. **D1 platform** — WebGL dari Unity 6000.6.7f1, install module untuk 2022.3.61f1, atau desktop-only dulu?
-2. **D3 klip** — boleh uji klip Sit yang ada dulu (Fase A) sebelum beli/ambil klip baru?
-3. Station TV isinya apa persisnya: experience kerja, atau blog/reel video? (Ini nentuin layout panel)
-4. Apakah kamu mau game-nya **full-screen** (web hilang total, gaya Lusion) atau **canvas di dalam halaman** (header/footer web tetap ada)?
-5. Kalau ternyata WebGL berat di device recruiter, apakah boleh default ke mode Recruiter dan game cuma tombol opt-in? (Aturan AGENTS.md §2 bilang iya — konfirmasi)
+1. **D1 platform → Unity 6.** Project sudah dipindah ke **6000.6.7f1** (done, commit `5653aba`). Editor ini punya `WebGLSupport`; 2022.3.61f1 tidak punya. 2022 tetap terpasang sbg jalan balik.
+2. **D3 klip → uji yang ada dulu, bertahap.** Fase A memakai `Idle`/`Walk`/`Armature|Sit`. Gate A4: kalau jelek, baru ambil klip Mixamo. Jangan bikin 3 klip sebelum terbukti perlu.
+3. **Station TV = Portofolio** (bukan experience). Pemetaan final: **kasur = CV · PC = Projects · TV = Portofolio**.
+4. **Full screen.** Web hilang total saat game jalan (gaya Lusion).
+5. **Bukan Hybrid_Showcase_Portfolio.** Repo itu dicoret dari rencana. Prioritas user: **game sederhana jalan baik dulu**; penempatan & letak portofolio di web dipikirkan belakangan.
+6. **Kamera: tetap sudut ruangan follow pemain (CCTV).** Saat interaksi, kamera cinematic menyorot karakter sambil pop-up menu terbuka. Kamera = Cinemachine (blend halus), bukan lerp manual.
+7. **Scope: tidak melanjutkan game ini** jadi game besar. Cukup game sederhana yang berjalan baik.
+
+### Konsekuensi ke fase
+- Fase C: pakai Cinemachine (`CinemachineBrain` di `Main Camera`, vcam per station), `IsometricCameraFollow` dinonaktifkan saat rig aktif — 1 pemilik kamera.
+- Fase E: overlay menu dirender **HTML di atas canvas** (bukan UI 3D/TMP), supaya teks CV/Pengalaman tetap tajam di WebGL.
+- Fase F: build WebGL dari **Unity 6000.6.7f1** full-screen, integrasi web menyusul (bukan bagian fase ini).
 
 ---
 
