@@ -61,3 +61,7 @@ crashlytics-build.properties
 RawAssets/
 .ai-game-dev/
 .claude/
+
+# MCP probe/debug output (generated, not game assets)
+PlayCaptureOut/
+Assets/Environment/Debug/

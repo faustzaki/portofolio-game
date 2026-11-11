@@ -114,20 +114,18 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // Apply Horizontal Movement
         float targetSpeed = moveInput.magnitude * moveSpeed;
+
         if (moveInput.magnitude > 0.05f)
         {
-            controller.Move(moveInput * moveSpeed * Time.deltaTime);
-
             // Rotate towards movement direction
             Quaternion targetRotation = Quaternion.LookRotation(moveInput);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
 
-        // Apply Gravity
-        verticalVelocity.y += gravity * Time.deltaTime;
-        controller.Move(verticalVelocity * Time.deltaTime);
+        // Apply Movement & Gravity in single unified Move pass (prevents CharacterController double-step bug)
+        Vector3 finalMovement = (moveInput * moveSpeed + verticalVelocity) * Time.deltaTime;
+        controller.Move(finalMovement);
 
         // Update Animator
         if (animator != null)
