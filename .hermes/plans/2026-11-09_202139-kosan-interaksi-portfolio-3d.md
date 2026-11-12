@@ -65,6 +65,38 @@ Catatan upgrade: `com.unity.modules.vr` dihapus Unity 6; 684 error lama berasal 
 | `Armature\|Sit` | `Character_Sit.fbx` | **7.00 s** | **tidak** | ✅ state `Sit` |
 | `mixamo.com` | `TestIdle.fbx` | 2.00 s | tidak | ❌ **tidak dipakai controller** |
 
+#### ⚠️ A3 SELESAI — hasil pengukuran klip `Sit` (2026-11-12)
+
+**Klip `Sit` BUKAN animasi "turun duduk". Dia SEATED IDLE LOOP.** Bukti (`C:\tmp\sitshape2.txt`):
+
+| Ukuran | Nilai |
+| --- | --- |
+| `curveBindings` | 130 (7 di antaranya `RootT/RootQ`, path kosong) |
+| `RootT.y` start | **0.6723** |
+| `RootT.y` end | **0.6723** |
+| `RootT.y` max | 0.6737 → **delta = 0.0000** |
+| peak motion / 0.25 s | 4.4593 |
+| `settles at` | **never** (tidak pernah diam) |
+
+Terjemahan: root **tidak turun sama sekali** (flat 0.6723) dan animasi **tidak pernah settle** — gerak kecil terus sampai t=7.00. Jadi:
+
+- Turun ke posisi duduk **tidak ada di klip** → transisi masuk **tidak bisa** cuma `CrossFade("Sit")`, karakter akan *teleport* dari berdiri ke duduk.
+- Klip ini justru **cocok dipakai sebagai loop duduk** (fidget/tarikan napas), bukan sebagai transisi.
+
+**Konsekuensi ke gate A4:** pilihan murah = pakai klip ini sebagai **seated idle** (set `loop=True`), dan cari **1 klip Mixamo "Sitting Down"** untuk transisinya. Jadi tambah **1 klip**, bukan 3.
+
+#### Permukaan duduk hasil ukur ulang (mesh vertex, 2.5 cm bucket — bukan raycast collider)
+
+| Objek | Plataran | Luas | Centroid | Catatan |
+| --- | --- | --- | --- | --- |
+| `PP_Desk_Chair` | **y = -0.400 … -0.475** (span 0.60 × 0.55) | **≈ 0.33 m²** | (1.50, -1.60) | **ini dudukan**; tinggi duduk 0.55 m dari lantai (-0.95) |
+| `PP_Desk_Chair` | y = 0.425 / 0.400 (span 0.57 × 0.07) | sempit | (1.50, -1.31) | sandaran/senderan tangan |
+| `PP_Desk_Chair` collider | raycast **seragam 0.4724** di 400/400 sel | — | — | **box collider kasar** → jangan dipakai `PoseAligner` |
+| `PP_Armchair` | **belum terukur via mesh** — collider melaporkan plataran -0.60 (112/400 sel) | — | — | collider = boks, sama seperti kursi; ukur mesh di A2 |
+| `PP_Bed` | **y = -0.4474** (297/400 sel) | — | (-1.55, -1.85) | solid, cocok catatan lama |
+
+**Aturan turunan: `PoseAligner` wajib pakai mesh vertex, bukan collider.** Kolom `PP_Desk_Chair` membuktikan collider melaporkan 1 bidang rata di 0.4724 (1.42 m di atas lantai) untuk seluruh footprint — itu boks pembungkus, bukan dudukan.
+
 - `Character_Animator.controller` — param `Speed:Float` + `IsSitting:Bool`, 3 state (`Idle`/`Walk`/`Sit`).
 - **BELUM ADA klip:** duduk-main-PC, nonton-TV, berdiri/transisi masuk.
 - `Anim_Sit.fbx` / `Anim_PickUp.fbx` / `Anim_Walk.fbx`: importer 1 clip, **0 `AnimationClip` asset** → gerakan grab tidak tersedia.
@@ -175,8 +207,8 @@ Unity --prompt "[E] Duduk"-->  postMessage({type:'prompt',  id:'bed'})  --> HTML
 
 - [ ] **A1. Uji klip `Sit` di kursi PC.** Pasang player pakai offset, `CrossFade("Sit")`, render 4 sudut. Ukur: hips.y vs permukaan duduk, kaki nembus lantai? (raycast ke bawah, hitung penetrasi). → `sitfit_desk.txt` + render.
 - [ ] **A2. Uji klip `Sit` di armchair + kasur.** Kasur: jalankan `SitFinalVerification.Check()` → `contact_check.txt` harus **PASS** (gap rata 3–6 mm, 0 penetrating).
-- [ ] **A3. Ukur bentuk kurva klip `Sit`.** Sample `RootT.y`, `RootQ`, 3 muscle tulang kunci tiap 0.25 s. Jawab: (i) 0–2 s = turun ke duduk atau langsung duduk? (ii) 5–7 s statis? → nentuin titik masuk/keluar transisi. → `sitshape.txt`.
-- [ ] **A4. KEPUTUSAN D3** dari hasil A1–A3: pakai klip lama atau ambil klip Mixamo baru. **Gate — jangan lanjut sebelum ini diputuskan.**
+- [x] **A3. Ukur bentuk kurva klip `Sit`.** ✅ **SELESAI 2026-11-12** → `C:\tmp\sitshape2.txt`. Hasil: klip **seated idle loop**, bukan transisi turun. `RootT.y` flat 0.6723 (delta 0.0000), tidak ada penurunan, tidak pernah settle. **Tidak bisa dipakai sebagai transisi masuk.**
+- [ ] **A4. KEPUTUSAN D3** dari hasil A1–A3: pakai klip lama atau ambil klip Mixamo baru. **Gate — jangan lanjut sebelum ini diputuskan.** *(arah dari A3: klip lama jadi seated idle loop; tambah **1** klip Mixamo "Sitting Down" untuk transisi.)*
 
 ### FASE B — Trigger + prompt (tanpa kamera, tanpa menu) — 4 task
 
